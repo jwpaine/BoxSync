@@ -6,24 +6,20 @@ public class Interface implements Runnable {
 	
 	private Scanner scan;
 	private DatabaseConnector database;
+	private Box box;
 	public Interface() {
 		scan = new Scanner(System.in);
 		database = new DatabaseConnector();
-		connectDB();
 		
+		
+		box = new Box();
+		database.addDirectory("/local", "/remote");
+		database.getLocalDirs();
 		
 		
 	}
 	
-	public void connectDB() {
-		if (!database.doesExist()) {
-			System.out.println("Database does not exist, creating...");
-			/* create */
-			database.create();
-		}
-		
-		database.connect();
-	}
+
 	
 
 	public void run() {

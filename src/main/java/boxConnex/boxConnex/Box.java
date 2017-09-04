@@ -16,17 +16,18 @@ public class Box {
        private String client_id;
        private String security_token;
        private String url;
-       private String auth_code;
+       private String auth_code = null;
        private BoxAPIConnection api;
        
 	public Box() {
-		 
-		client_id = "";
+		client_id = ""; 
 		security_token = "";
+		
 		url = "https://account.box.com/api/oauth2/authorize?response_type=code&client_id=" + client_id + "&state=security_token%25" + security_token;
 		
-		api = new BoxAPIConnection(client_id,security_token, authorize());
-		 
+			api = new BoxAPIConnection(client_id,security_token, authorize());
+		
+		
 	    BoxFolder rootFolder = BoxFolder.getRootFolder(api);
 	    for (BoxItem.Info itemInfo : rootFolder) {
 	    	System.out.format("[%s] %s\n", itemInfo.getID(), itemInfo.getName());
@@ -34,6 +35,9 @@ public class Box {
 		
 	}
 	
+	public String getAuthCode() {
+		return this.auth_code;
+	}
 		/* return authorization code from box.com after user authorizes app */
 	public String authorize() {
 		

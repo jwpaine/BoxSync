@@ -4,6 +4,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -16,6 +17,14 @@ public class DatabaseConnector {
 	public DatabaseConnector() {
 		dbFile = "test.db";
 		conn = null;
+		/* check if exist, create if not, connect in the end */
+		if (!doesExist()) {
+			System.out.println("Database does not exist, creating...");
+			/* create */
+			create();
+		}
+		
+		connect();
 		
 	}
 	/* check if database exists */
@@ -72,17 +81,23 @@ public class DatabaseConnector {
             
         } catch (SQLException e) {
             System.out.println(e.getMessage());
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                }
-            } catch (SQLException ex) {
-                System.out.println(ex.getMessage());
-            }
-        }
+        } 
     }
-	
+	/* Add if not exist */
+	public void addDirectory(String localDir, String remoteDir) {
+        String sql = "INSERT INTO directories(local,remote) VALUES(?,?)";
+ 
+        try {
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, localDir);
+            pstmt.setString(2, remoteDir);
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+       
+    }
+ 
 	/* return a list of local directories setup for syncing */
 	public String[] getLocalDirs() {
 		String sql = "SELECT local FROM directories";
@@ -93,8 +108,7 @@ public class DatabaseConnector {
             
             // loop through the result set
             while (rs.next()) {
-                System.out.println(rs.getInt("id") +  "\t" + 
-                                   rs.getString("local") + "\t");
+                System.out.println(rs.getString("local") + "\t");
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());
