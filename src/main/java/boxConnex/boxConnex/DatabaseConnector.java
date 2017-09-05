@@ -8,6 +8,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 public class DatabaseConnector {
 	
@@ -23,7 +24,6 @@ public class DatabaseConnector {
 			/* create */
 			create();
 		}
-		
 		connect();
 		
 	}
@@ -62,7 +62,6 @@ public class DatabaseConnector {
 			                // create a new table
 		                stmt.execute(sql);
 		                System.out.println("Table created.");
-
 		            }
 		 
 		        } catch (SQLException e) {
@@ -84,7 +83,7 @@ public class DatabaseConnector {
         } 
     }
 	/* Add if not exist */
-	public void addDirectory(String localDir, String remoteDir) {
+	public void linkDirectory(String localDir, String remoteDir) {
         String sql = "INSERT INTO directories(local,remote) VALUES(?,?)";
  
         try {
@@ -92,23 +91,43 @@ public class DatabaseConnector {
             pstmt.setString(1, localDir);
             pstmt.setString(2, remoteDir);
             pstmt.executeUpdate();
+            System.out.println("Sync enabled for (local -> remote): " + localDir + "->" + remoteDir);
         } catch (SQLException e) {
                 System.out.println(e.getMessage());
             }
-       
+    }
+	/* remove if exist */
+	public void unlinkDirectory(String localDir) {
+        String sql = "DELETE from directories where local = ?";
+ 
+        try {
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, localDir);
+            pstmt.executeUpdate();
+            System.out.println("Directory: " + localDir + " will not be synced");
+        } catch (SQLException e) {
+                System.out.println(e.getMessage());
+        }
+        
     }
  
-	/* return a list of local directories setup for syncing */
-	public String[] getLocalDirs() {
-		String sql = "SELECT local FROM directories";
-        
+	/* return a list of local,remote directory pairs enabled for syncing */
+	
+	public ArrayList<String[]> getDirs() {
+		String sql = "SELECT id, local, remote FROM directories";
+        ArrayList dirs = new ArrayList();
        try {
              Statement stmt  = conn.createStatement();
              ResultSet rs    = stmt.executeQuery(sql);
             
             // loop through the result set
             while (rs.next()) {
-                System.out.println(rs.getString("local") + "\t");
+                String[] triplet = new String[3];
+            	triplet[0] = String.valueOf(rs.getInt("id"));
+            	triplet[1] = rs.getString("local");
+            	triplet[2] = rs.getString("remote");
+            	dirs.add(triplet);
+            	return dirs;
             }
         } catch (SQLException e) {
             System.out.println(e.getMessage());

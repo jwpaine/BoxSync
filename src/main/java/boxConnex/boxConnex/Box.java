@@ -4,6 +4,7 @@ import java.awt.Desktop;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -54,14 +55,21 @@ public class Box {
 				
 				// return code if code exists in inputLine (else, access was denied)
 				if (inputLine.split("code=").length > 1) {
+					PrintWriter w = new PrintWriter(clientSocket.getOutputStream(), true);
+					w.println("HTTP/1.0 200 OK \r\n Content-Length: 20\r\n BINGO \r\n");
+					w.close();
+					serverSocket.close();
 					return inputLine.split("code=")[1].split(" ")[0];
+					
 				}
-				
+				clientSocket.close();
+				serverSocket.close();
 				return null;
 
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
+				
 				return null;
 			}
 	        
