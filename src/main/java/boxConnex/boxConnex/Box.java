@@ -21,8 +21,9 @@ public class Box {
        private BoxAPIConnection api;
        
 	public Box() {
-		client_id = ""; 
-		security_token = "";
+		
+		client_id = "secret"; 
+		security_token = "secret";
 		
 		url = "https://account.box.com/api/oauth2/authorize?response_type=code&client_id=" + client_id + "&state=security_token%25" + security_token;
 		

@@ -15,31 +15,34 @@ public class App implements Runnable {
 	private DatabaseConnector database;
 	private Box box;
 	private ServerSocket serverSocket;
-	private Socket clientSocket;
+	private Socket client;
 	private InputStreamReader isr ;
 	private BufferedReader in;
 	private PrintWriter w;
-	public App() {
+	
+	
+	
+	/* timers to check if client has timed out */
+	private long startTime;
+	
+	public App(Socket client) {
+		this.client = client;
+		  System.out.println("Client Connected!: " + client.getInetAddress());
 		scan = new Scanner(System.in);
 		database = new DatabaseConnector();
-		box = new Box();
 		
-		 try
-	        {
-	            serverSocket = new ServerSocket(10001);
-	        }
-	        catch (Exception err)
-	        {
-	            System.out.println(err);
-	        }
-		
+
+		 box = new Box();
 		
 	}
 	
 	public void performAction(String inputLine) {
 		
-		String[] input = scan.nextLine().split(" ");
+		
+		String[] input = inputLine.split(" ");
 		System.out.println("Performing action on input:" + inputLine);
+	
+		
 		if (input[0].equals("list")) {
 			ArrayList<String[]> dirs;
 		
@@ -71,26 +74,30 @@ public class App implements Runnable {
 	public void run() {
 		// TODO Auto-generated method stub
 		 try {
-			 Socket client = serverSocket.accept();
-			  System.out.println("Client Connected!: " + client.getInetAddress());
-	            
+
 	                BufferedReader r = new BufferedReader(new InputStreamReader(client.getInputStream()));
 	                PrintWriter w = new PrintWriter(client.getOutputStream(), true);
 	                w.println("Welcome!");
-	                String line;
-	                do
-	                {
-	                    line = r.readLine();
-	                    
-	                    if ( line != null ) {
-	                        w.println("Received:"+ line);
-	                        System.out.println("Attempting to perform action on data:" + line);
-	                    	
-	                    }
-	                    performAction(line);
-	                    
-	                } while ( !line.trim().equals("bye") );
+	                String line = null;
 	                
+	              do {
+	                
+		                    line = r.readLine();
+		                    
+		                    if ( line != null ) {
+		                        w.println("Received:"+ line);
+		                        // if we receive a PING, reset timer, and continue next iteration
+		                        // else, perform action on input received from client
+		                        System.out.println("Attempting to perform action on data:" + line);
+		                        performAction(line);
+		                       
+		                    }
+		                    
+		                    System.out.println("looping");
+	            	  
+	                    // loop as long as client doesn't initiate bye or timer doesn't exceed 10 seconds since ping
+	                }  while ( !line.trim().equals("bye")  ) ;
+	              
 	                client.close();
 	                System.out.println("Client disconnected");
 	            
@@ -101,6 +108,9 @@ public class App implements Runnable {
 	        }
 		
 	}
+	
+
+	
 	
 
 

@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 
 import com.box.sdk.BoxAPIConnection;
 import com.box.sdk.BoxFolder;
@@ -21,9 +23,16 @@ public class Main
     {
         System.out.println( "Hello World!" );
         
-     //   new Box();
-        (new Thread(new App())).start();
-        (new Thread(new Interface())).start();
+    
+     
+        (new Thread(new ClientListener())).start();
+           
+           
+            
+         
+         
+       
+     
        
         
     }

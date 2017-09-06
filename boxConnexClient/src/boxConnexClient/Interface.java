@@ -1,4 +1,4 @@
-package boxConnex.boxConnex;
+package boxConnexClient;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,11 +9,12 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+
+
 public class Interface implements Runnable {
 	
 	private Scanner scan;
-	private DatabaseConnector database;
-	private Box box;
+	
 	private InputStreamReader isr;
 	private BufferedReader in;	
 	
@@ -49,10 +50,7 @@ public class Interface implements Runnable {
                 line = line + "\n";
                 w.println(line);
                } while ( !line.trim().equals("bye") );
-                
-                
-          
-            
+
         } 
         catch (Exception err)
         {
