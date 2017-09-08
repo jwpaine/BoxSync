@@ -50,18 +50,35 @@ public class DatabaseConnector {
 		                /* create table with columns 'local' (local directory) 
 		                 * and 'remote' (corresponding remote directory for file sync 
 		                 */
-		                System.out.println("Creating table...");
+		                System.out.println("Creating table directories...");
 		                
 		                String sql = "CREATE TABLE IF NOT EXISTS directories (\n"
 			                    + "	id integer PRIMARY KEY,\n"
 			                    + "	local text NOT NULL,\n"
 			                    + "	remote text NOT NULL\n"
 			                    + ");";
-			           
+		               
 		                Statement stmt = conn.createStatement();
 			                // create a new table
 		                stmt.execute(sql);
 		                System.out.println("Table created.");
+		                
+		                System.out.println("Creating table accounts...");
+		                
+		                sql = "CREATE TABLE IF NOT EXISTS accounts (\n"
+			                    + "	id integer PRIMARY KEY,\n"
+			                    + "	email text NOT NULL,\n"
+			                    + "	token text NOT NULL\n"
+			                    + ");";
+		               
+		                stmt = conn.createStatement();
+			                // create a new table
+		                stmt.execute(sql);
+		                System.out.println("Table created.");
+		                
+		                System.out.println("Adding dummy account and token to begin");
+		                
+		                this.addAccount("john.paine", "abc");
 		            }
 		 
 		        } catch (SQLException e) {
@@ -82,6 +99,47 @@ public class DatabaseConnector {
             System.out.println(e.getMessage());
         } 
     }
+	/* Add if not exist */
+	public boolean checkEmail(String email) {
+		
+		String query = "SELECT (count(*) > 0) as found FROM accounts WHERE email LIKE ?";
+        
+   
+        try {
+        	PreparedStatement pst = conn.prepareStatement(query);
+            pst.setString(1, email);
+            Statement stmt  = conn.createStatement();
+            ResultSet rs    = pst.executeQuery();
+           
+           // loop through the result set
+            if (rs.next()) {
+                boolean found = rs.getBoolean(1); // "found" column
+                if (found) {
+                    return true;
+                } else {
+                    
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+}
+ 
+	public void addAccount(String email, String token) {
+        String sql = "INSERT INTO accounts (email,token) VALUES(?,?)";
+ 
+        try {
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, email);
+            pstmt.setString(2, token);
+            pstmt.executeUpdate();
+            System.out.println("New email and token added for: " + email);
+        } catch (SQLException e) {
+                System.out.println(e.getMessage());
+            }
+    }
+	
 	/* Add if not exist */
 	public void linkDirectory(String localDir, String remoteDir) {
         String sql = "INSERT INTO directories(local,remote) VALUES(?,?)";

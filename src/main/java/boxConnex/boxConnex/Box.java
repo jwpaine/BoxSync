@@ -22,8 +22,13 @@ public class Box {
        
 	public Box() {
 		
+		/*
 		client_id = "secret"; 
 		security_token = "secret";
+		*/
+		
+		client_id = "g2bawbzo7yvg4qj61747jpe5v1eqzmvn"; 
+		security_token = "bwEUHi61lTTx3V2OkVGy8Pi7fs3DV2iR";
 		
 		url = "https://account.box.com/api/oauth2/authorize?response_type=code&client_id=" + client_id + "&state=security_token%25" + security_token;
 		

@@ -4,9 +4,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.math.BigInteger;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.Scanner;
 
 public class App implements Runnable {
@@ -20,6 +23,8 @@ public class App implements Runnable {
 	private BufferedReader in;
 	private PrintWriter w;
 	
+	private BufferedReader r;
+   
 	
 	
 	/* timers to check if client has timed out */
@@ -32,14 +37,61 @@ public class App implements Runnable {
 		database = new DatabaseConnector();
 		
 
-		 box = new Box();
+	//	 box = new Box();
+		
+	}
+	
+	public boolean tokenConfirm(String token) {
+		
+		if (token.equals("abc")) {
+			System.out.println("Token OK");
+			return true;
+		}
+		
+		System.out.println("Token BAD");
+		return false;
 		
 	}
 	
 	public void performAction(String inputLine) {
+		System.out.println("Performing action on input:" + inputLine);
+		String[] input = inputLine.split(":");
 		
 		
-		String[] input = inputLine.split(" ");
+		// check to see if client wants to login --> receive token
+		if (input[0].equals("LOGIN")) {
+			String username = input[1]; 
+			String password = input[2];
+			System.out.println("Username:"+username+"password:"+password);
+			/* authorize (just email for now) */
+			if (database.checkEmail(username)) {
+				Random random = new SecureRandom();
+				String token = new BigInteger(130, random).toString(32);
+				w.println("TOKEN:"+token);
+			}
+			/* create token and store in DB */
+			
+			
+			/* return token to user (user will use token on all subsequent sends until it receives a bad */
+			return;
+		}
+		
+		
+		
+	// message received from client, check token
+		if (tokenConfirm(input[0])) {
+			w.println("OK");
+			return;
+		}
+		
+		if (!tokenConfirm(input[0])) {
+			w.println("BAD");
+			return;
+		} 
+		
+		
+/*		String[] input = inputLine.split(" ");
+	
 		System.out.println("Performing action on input:" + inputLine);
 	
 		
@@ -69,14 +121,16 @@ public class App implements Runnable {
 			}
 		database.unlinkDirectory(input[1]);
 		}
+		
+		*/
 	}
 
 	public void run() {
 		// TODO Auto-generated method stub
 		 try {
 
-	                BufferedReader r = new BufferedReader(new InputStreamReader(client.getInputStream()));
-	                PrintWriter w = new PrintWriter(client.getOutputStream(), true);
+	                r = new BufferedReader(new InputStreamReader(client.getInputStream()));
+	                w = new PrintWriter(client.getOutputStream(), true);
 	                w.println("Welcome!");
 	                String line = null;
 	                
@@ -85,11 +139,13 @@ public class App implements Runnable {
 		                    line = r.readLine();
 		                    
 		                    if ( line != null ) {
-		                        w.println("Received:"+ line);
+		                        System.out.println("Received:" + line);
+		                
 		                        // if we receive a PING, reset timer, and continue next iteration
 		                        // else, perform action on input received from client
-		                        System.out.println("Attempting to perform action on data:" + line);
-		                        performAction(line);
+		                       
+		                     
+		                        performAction(line); 
 		                       
 		                    }
 		                    

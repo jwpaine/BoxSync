@@ -15,7 +15,7 @@ public class ClientListener implements Runnable {
 	public ClientListener() {
 		 try
 	        {
-	           serverSocket = new ServerSocket(10001);
+	           serverSocket = new ServerSocket(10005);
 	           System.out.println("Server listening on port 10001");
 	        }
 	        catch (Exception err)
